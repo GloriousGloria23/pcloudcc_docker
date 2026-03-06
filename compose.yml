@@ -22,8 +22,10 @@ services:
       - SYS_ADMIN
     environment:
       - PCLOUD_USERNAME=${PCLOUD_USERNAME}
+      - PCLOUD_PASSWORD=${PCLOUD_PASSWORD}
       - PCLOUD_UID=${PCLOUD_UID}
       - PCLOUD_GID=${PCLOUD_GID}
+      - PCLOUD_CLEAN_SESSION=${PCLOUD_CLEAN_SESSION}
 
 volumes:
   pcloud_cache:

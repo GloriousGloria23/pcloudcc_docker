@@ -7,6 +7,9 @@ if [ "${PCLOUD_DEBUG:=0}" == "1" ]; then
   set -x
 fi
 
+# Cleanup password file on exit
+trap 'rm -f /tmp/pcloud_pass' EXIT
+
 PCLOUD_DRIVE_PATH="/pCloudDrive"
 
 : ${PCLOUD_UID:=$(stat ${PCLOUD_DRIVE_PATH} -c '%u')}
@@ -43,14 +46,20 @@ if [ -n "${PCLOUD_USERNAME:=''}" ]; then
 fi
 
 # Conditionally pass the password
-# from a password file or stdin
+# from a password file, PCLOUD_PASSWORD env var, or stdin
 # https://stackoverflow.com/a/1987599
 password_file_stdin=""
 if [ -n "${PCLOUD_PASSWORD_FILE:=""}" ]; then
   password_file_stdin="${PCLOUD_PASSWORD_FILE}"
   ARGS=(-p ${ARGS[@]})
+elif [ -n "${PCLOUD_PASSWORD:=""}" ]; then
+  # Use password from env var via temporary file
+  password_file_stdin="/tmp/pcloud_pass"
+  echo "${PCLOUD_PASSWORD}" > "${password_file_stdin}"
+  chmod 600 "${password_file_stdin}"
+  ARGS=(-p ${ARGS[@]})
 else
-  # Prompt for password if no file is provided
+  # Prompt for password if no file/env is provided
   ARGS=(-p ${ARGS[@]})
 fi
 
