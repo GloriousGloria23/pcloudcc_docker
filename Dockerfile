@@ -1,6 +1,6 @@
 # -*-Dockerfile-*-
 
-ARG DEBIAN_VERSION=bullseye
+ARG DEBIAN_VERSION=bookworm
 
 FROM debian:${DEBIAN_VERSION} AS builder
 
@@ -24,14 +24,16 @@ RUN apt-get update \
 WORKDIR /usr/src
 
 # Pin the repo to the latest tested commit.
-ARG console_client_sha=4b42e3c8a90696ca9ba0a7e162fcbcd62ad2e306
+ARG console_client_sha=980d2cadf670f1b14642c7dbe015f95bd2306175
 
 RUN cd /usr/src \
     && git clone https://github.com/pcloudcom/console-client \
     && cd console-client \
     && git reset --hard ${console_client_sha} \
-    && git fetch https://github.com/pcloudcom/console-client pull/163/head:mfa_branch \
-    && git checkout mfa_branch
+    && git config user.email "docker@builder.com" \
+    && git config user.name "Docker Builder" \
+    && git fetch origin pull/163/head:mfa_branch \
+    && git merge mfa_branch --no-edit
 
 WORKDIR /usr/src/console-client
 # Remove -mtune arg
